@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>号卡商城</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;  /* 深邃科技蓝 */
+            --primary-light: #5a7bf0;  /* 明亮科技蓝 */
+            --secondary-color: #3a0ca3; /* 深紫色 */
+            --accent-color: #4cc9f0;   /* 清新青蓝 */
+            --success-color: #38b000;  /* 自然绿 */
+            --warning-color: #ff5a5f;  /* 活力橙红 */
+            --text-dark: #14213d;      /* 深海军蓝 */
+            --text-normal: #2b2d42;    /* 深灰蓝 */
+            --text-light: #8d99ae;     /* 浅灰蓝 */
+            --light-gray: #f8f9fa;     /* 极浅灰 */
+            --card-bg: #ffffff;        /* 纯白卡片 */
+            --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --border-radius: 14px;
+            --gradient: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-normal);
+            line-height: 1.6;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+        
+        .header h1 {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.5px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+        
+        .header p {
+            font-size: 1.15rem;
+            color: var(--text-light);
+            max-width: 680px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+        
+        .section {
+            margin-bottom: 4rem;
+        }
+        
+        .section-title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 2.2rem;
+            position: relative;
+            padding-bottom: 0.8rem;
+            text-align: center;
+            letter-spacing: -0.25px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 2px;
+            opacity: 0.9;
+        }
+        
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.2rem;
+        }
+        
+        .package-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            text-align: center;
+            padding: 2.8rem 2.2rem;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            position: relative;
+        }
+        
+        .package-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--primary-color);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .package-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(67, 97, 238, 0.15);
+        }
+        
+        .package-card:hover::before {
+            opacity: 1;
+        }
+        
+        .package-card.free {
+            border-top: 5px solid var(--accent-color);
+        }
+        
+        .package-card.free:hover::before {
+            background: var(--accent-color);
+        }
+        
+        .package-card.paid {
+            border-top: 5px solid var(--primary-color);
+        }
+        
+        .package-card.paid:hover::before {
+            background: var(--primary-color);
+        }
+        
+        .package-card.not-recommended {
+            border-top: 5px solid var(--warning-color);
+        }
+        
+        .package-card.not-recommended:hover::before {
+            background: var(--warning-color);
+        }
+        
+        .package-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            color: var(--text-dark);
+            letter-spacing: -0.25px;
+        }
+        
+        .package-desc {
+            color: var(--text-light);
+            margin-bottom: 2.2rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            padding: 0 0.8rem;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2.4rem;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0));
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn:hover::after {
+            opacity: 1;
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+            box-shadow: 0 6px 16px rgba(76, 201, 240, 0.2);
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        
+        .tag.free {
+            background-color: rgba(76, 201, 240, 0.12);
+            color: var(--accent-color);
+        }
+        
+        .tag.paid {
+            background-color: rgba(67, 97, 238, 0.12);
+            color: var(--primary-color);
+        }
+        
+        .tag.not-recommended {
+            background-color: rgba(255, 90, 95, 0.12);
+            color: var(--warning-color);
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+            margin: 3rem 0;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-text {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 0.8rem;
+        }
+        
+        .runtime {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-top: 1.5rem;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.25rem;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .header p {
+                font-size: 1.05rem;
+            }
+            
+            .packages-grid {
+                grid-template-columns: 1fr;
+                gap: 1.8rem;
+            }
+            
+            .package-card {
+                padding: 2.2rem 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>精选优质套餐</h1>
+            <p>我们精心挑选了最适合不同需求的优质套餐，为您提供最佳的通信体验</p>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">免费办理套餐</h2>
+            <div class="packages-grid">
+                <div class="package-card free">
+                    <span class="tag free">免费</span>
+                    <h3 class="package-name">全国套餐</h3>
+                    <p class="package-desc">一站式浏览我们提供的全国优质通信套餐选择</p>
+                    <a href="https://h5.gantanhao.com/?timestamp=1745736147394&from=3%40C%40%40r%3Eppq%40CA%3Bt%3FBG%3BBDqC%3BF%40%40%3E%3Bp%3Fq%3FEBo%3EpAEC3%40C%40%40" class="btn btn-outline">浏览套餐</a>
+                </div>
+                
+                <div class="package-card free">
+                    <span class="tag free">免费</span>
+                    <h3 class="package-name">长期套餐</h3>
+                    <p class="package-desc">稳定持久的通信解决方案，适合长期使用</p>
+                    <a href="https://h5.gantanhao.com/url?value=77qd21748485991697" class="btn btn-outline">立即办理</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="section">
+            <h2 class="section-title">付费优质套餐</h2>
+            <div class="packages-grid">
+                <div class="package-card paid">
+                    <span class="tag paid">热门</span>
+                    <h3 class="package-name">校园政企卡</h3>
+                    <p class="package-desc">专为学生和企业设计的优惠套餐，性价比极高</p>
+                    <a href="https://91haoka.cn/webapp/weixiaodian/index.html?shop_id=596395" class="btn">立即购买</a>
+                </div>
+                
+                <div class="package-card not-recommended">
+                    <span class="tag not-recommended">不推荐</span>
+                    <h3 class="package-name">物联卡</h3>
+                    <p class="package-desc">物联网设备专用卡，稳定性较低但价格实惠</p>
+                    <a href="https://ggtx.10086com.cc/hk/index?st=1&mid=3949&sc=726734451ef3" class="btn">了解详情</a>
+                </div>
+                
+                <div class="package-card paid">
+                    <span class="tag paid">新品</span>
+                    <h3 class="package-name">飞利猫随身WIFI</h3>
+                    <p class="package-desc">随时随地享受高速网络，便携易用</p>
+                    <a href="https://h5.feilimao.cn/#/index/d27e525c4f4f8194/1" class="btn">立即购买</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="info-text">
+                点击按钮选择您需要的套餐<br>
+                所有套餐均经过严格测试<br>
+                如有问题请联系客服
+            </div>
+            <div class="runtime" id="runtime"></div>
+        </div>
+    </div>
+
+    <script>
+        // 本站运行时间计算 - 修改为2022年6月8日
+        function showRuntime() {
+            // 修改这里：将起始日期改为2022年6月8日
+            // JavaScript月份从0开始（0=1月，5=6月）
+            const startTime = new Date(2022, 5, 8, 0, 0, 0);
+            const now = new Date();
+            const diff = now - startTime;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('runtime').innerHTML = `本站已稳定运行 ${days}天${hours}小时${minutes}分${seconds}秒`;
+        }
+        
+        showRuntime();
+        setInterval(showRuntime, 1000);
+    </script>
+</body>
+</html>
