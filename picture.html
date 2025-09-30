@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真ikun图床 </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-image: url('https://yanxuan.nosdn.127.net/b5fd460e37448bbffae4fd8885134d67.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            padding: 20px;
+            padding-bottom: 60px;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 35px;
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 24px;
+            color: #ffffff;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .upload-area {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .file-input-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 40px 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            font-size: 16px;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label:hover, .file-input-label.dragover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-input-label i {
+            display: block;
+            font-size: 32px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+            transition: transform 0.3s ease;
+        }
+
+        .file-input-label:hover i {
+            transform: scale(1.1);
+        }
+
+        .selected-file {
+            margin-top: 15px;
+            font-size: 14px;
+            padding: 8px 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        button {
+            background-color: rgba(102, 187, 106, 0.8);
+            color: #ffffff;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        button:hover {
+            background-color: rgba(76, 175, 80, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: rgba(158, 158, 158, 0.7);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-container {
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin: 15px 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .result {
+            margin-top: 24px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.15);
+            font-size: 16px;
+            color: #ffffff;
+            min-height: 40px;
+            transition: all 0.3s ease;
+            overflow-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .result a {
+            color: #e3f2fd;
+            text-decoration: underline;
+        }
+
+        .result-success {
+            background-color: rgba(76, 175, 80, 0.15);
+            border-color: rgba(76, 175, 80, 0.3);
+        }
+
+        .result-error {
+            background-color: rgba(244, 67, 54, 0.15);
+            border-color: rgba(244, 67, 54, 0.3);
+        }
+        
+        /* 紧凑版的运行时间样式 */
+        .runtime-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: transparent;
+            padding: 6px 0;
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .runtime-content {
+            display: inline-block;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 5px 12px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 13px;
+        }
+        
+        .runtime-label {
+            font-size: 13px;
+            font-weight: 500;
+            margin-right: 6px;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.5px;
+        }
+        
+        .runtime-value {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 3px;
+        }
+        
+        .runtime-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 35px;
+        }
+        
+        .runtime-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            font-family: 'Arial', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        
+        .runtime-text {
+            font-size: 9px;
+            opacity: 0.9;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 1px;
+        }
+
+        .api-selector {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .api-selector-title {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .api-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .api-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .api-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .api-button.active {
+            background-color: rgba(76, 175, 80, 0.6);
+            border-color: rgba(76, 175, 80, 0.8);
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .api-status {
+            font-size: 14px;
+            margin-top: 15px;
+            padding: 8px 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .history-container {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .history-item {
+            padding: 8px;
+            margin-bottom: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .history-item a {
+            color: #bbdefb;
+            word-break: break-all;
+        }
+
+        .toggle-history {
+            margin-top: 10px;
+            background: none;
+            border: none;
+            color: #bbdefb;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: underline;
+            max-width: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-history:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 新增：响应式调整 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .file-input-label {
+                padding: 25px 15px;
+                font-size: 14px;
+            }
+            
+            .file-input-label i {
+                font-size: 28px;
+            }
+            
+            .runtime-value {
+                gap: 5px;
+            }
+            
+            .runtime-unit {
+                min-width: 30px;
+            }
+            
+            .runtime-number {
+                font-size: 14px;
+            }
+            
+            .runtime-text {
+                font-size: 8px;
+            }
+            
+            .api-buttons {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .api-button {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            button {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .api-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .runtime-content {
+                padding: 4px 8px;
+            }
+            
+            .runtime-value {
+                gap: 3px;
+            }
+            
+            .runtime-unit {
+                min-width: 28px;
+            }
+            
+            .runtime-number {
+                font-size: 13px;
+            }
+            
+            .runtime-text {
+                font-size: 7px;
+            }
+        }
+
+        /* 新增：动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .history-item {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>真ikun图床</h1>
+        
+        <!-- 接口选择器 -->
+        <div class="api-selector">
+            <div class="api-selector-title">选择上传接口：</div>
+            <div class="api-buttons" id="apiButtons">
+                <!-- 接口按钮将通过JS动态生成 -->
+            </div>
+            <div id="apiStatus" class="api-status">当前使用接口: 主接口 (jdtc)</div>
+        </div>
+        
+        <div class="upload-area">
+            <form id="uploadForm">
+                <div class="file-input-container">
+                    <label for="fileInput" class="file-input-label" id="fileInputLabel">
+                        <i>📁</i>
+                        <span>点击选择或拖放文件到此处</span>
+                    </label>
+                    <input type="file" id="fileInput" name="file" accept="image/*" required />
+                </div>
+                <div id="selectedFile" class="selected-file"></div>
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <button type="submit" id="uploadButton">上传文件</button>
+            </form>
+        </div>
+        <div id="result" class="result"></div>
+        
+        <button id="toggleHistory" class="toggle-history">显示上传历史</button>
+        <div id="historyContainer" class="history-container"></div>
+    </div>
+
+    <!-- 网站运行时间显示 -->
+    <div class="runtime-container">
+        <div class="runtime-content">
+            <span class="runtime-label">网站已持续运行:</span>
+            <div class="runtime-value">
+                <span class="runtime-unit">
+                    <span class="runtime-number" id="runtimeDays">0</span>
+                    <span class="runtime-text">天</span>
+                </span>
+                <span class="runtime-unit">
+                    <span class="runtime-number" id="runtimeHours">00</span>
+                    <span class="runtime-text">小时</span>
+                </span>
+                <span class="runtime-unit">
+                    <span class="runtime-number" id="runtimeMinutes">00</span>
+                    <span class="runtime-text">分钟</span>
+                </span>
+                <span class="runtime-unit">
+                    <span class="runtime-number" id="runtimeSeconds">00</span>
+                    <span class="runtime-text">秒</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 文件上传功能
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const fileInputLabel = document.getElementById('fileInputLabel');
+        const selectedFileDiv = document.getElementById('selectedFile');
+        const resultDiv = document.getElementById('result');
+        const uploadButton = document.getElementById('uploadButton');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const apiStatus = document.getElementById('apiStatus');
+        const toggleHistory = document.getElementById('toggleHistory');
+        const historyContainer = document.getElementById('historyContainer');
+        const apiButtonsContainer = document.getElementById('apiButtons');
+        
+        // 定义API接口列表
+        const apiEndpoints = [
+            { url: 'https://api.xinyew.cn/api/jdtc', name: '主接口', id: 'jdtc' },
+            { url: 'https://api.xinyew.cn/api/360tc', name: '360接口', id: '360tc' },
+            { url: 'https://api.xinyew.cn/api/yanxuantc', name: '严选接口', id: 'yanxuantc' },
+            { url: 'https://api.xinyew.cn/api/sogotc', name: '搜狗接口', id: 'sogotc' }
+        ];
+        
+        let currentApiIndex = 0;
+        let uploadHistory = JSON.parse(localStorage.getItem('uploadHistory')) || [];
+        
+        // 初始化API选择按钮
+        function initApiButtons() {
+            apiEndpoints.forEach((api, index) => {
+                const button = document.createElement('button');
+                button.className = `api-button ${index === currentApiIndex ? 'active' : ''}`;
+                button.textContent = api.name;
+                button.dataset.index = index;
+                
+                button.addEventListener('click', () => {
+                    // 更新当前选择的API
+                    currentApiIndex = parseInt(button.dataset.index);
+                    
+                    // 更新按钮状态
+                    document.querySelectorAll('.api-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                    
+                    // 更新状态显示
+                    apiStatus.textContent = `当前使用接口: ${api.name} (${api.id})`;
+                    
+                    // 显示提示信息
+                    showResult(`已切换到 ${api.name}`, 'success');
+                    setTimeout(() => {
+                        resultDiv.textContent = '';
+                        resultDiv.className = 'result';
+                    }, 2000);
+                });
+                
+                apiButtonsContainer.appendChild(button);
+            });
+        }
+        
+        // 初始化显示历史记录
+        updateHistoryDisplay();
+        
+        // 初始化API按钮
+        initApiButtons();
+
+        // 拖放功能
+        fileInputLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileInputLabel.classList.add('dragover');
+        });
+
+        fileInputLabel.addEventListener('dragleave', () => {
+            fileInputLabel.classList.remove('dragover');
+        });
+
+        fileInputLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInputLabel.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                updateSelectedFile();
+            }
+        });
+
+        // 文件选择变化
+        fileInput.addEventListener('change', updateSelectedFile);
+
+        function updateSelectedFile() {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileSize = file.size > 1024 * 1024 
+                    ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' 
+                    : (file.size / 1024).toFixed(2) + ' KB';
+                
+                selectedFileDiv.textContent = `已选择: ${file.name} (${fileSize})`;
+            } else {
+                selectedFileDiv.textContent = '';
+            }
+        }
+
+        // 切换历史记录显示
+        toggleHistory.addEventListener('click', () => {
+            if (historyContainer.style.display === 'block') {
+                historyContainer.style.display = 'none';
+                toggleHistory.textContent = '显示上传历史';
+            } else {
+                historyContainer.style.display = 'block';
+                toggleHistory.textContent = '隐藏上传历史';
+            }
+        });
+
+        // 更新历史记录显示
+        function updateHistoryDisplay() {
+            if (uploadHistory.length > 0) {
+                toggleHistory.style.display = 'block';
+                historyContainer.innerHTML = '';
+                
+                uploadHistory.slice().reverse().forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div>${new Date(item.time).toLocaleString()}</div>
+                        <div><a href="${item.url}" target="_blank">${item.url}</a></div>
+                        <button onclick="copyToClipboard('${item.url}')" style="margin-top:5px;padding:3px 8px;font-size:12px;">复制链接</button>
+                    `;
+                    historyContainer.appendChild(historyItem);
+                });
+            } else {
+                toggleHistory.style.display = 'none';
+            }
+        }
+
+        // 添加上传历史记录
+        function addToHistory(url) {
+            uploadHistory.push({
+                url: url,
+                time: new Date().toISOString()
+            });
+            
+            // 只保留最近10条记录
+            if (uploadHistory.length > 10) {
+                uploadHistory = uploadHistory.slice(-10);
+            }
+            
+            localStorage.setItem('uploadHistory', JSON.stringify(uploadHistory));
+            updateHistoryDisplay();
+        }
+
+        // 上传表单提交
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showResult('请先选择文件！', 'error');
+                return;
+            }
+
+            // 检查文件类型
+            if (!file.type.startsWith('image/')) {
+                showResult('请选择图片文件！', 'error');
+                return;
+            }
+
+            // 显示上传进度
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            uploadButton.disabled = true;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // 使用当前选中的API接口上传
+            try {
+                await uploadWithApi(currentApiIndex, formData, file);
+            } catch (error) {
+                showResult(`上传失败: ${error.message}`, 'error');
+                uploadButton.disabled = false;
+                progressContainer.style.display = 'none';
+            }
+        });
+
+        // 使用指定API接口上传
+        async function uploadWithApi(apiIndex, formData, file) {
+            return new Promise((resolve, reject) => {
+                const api = apiEndpoints[apiIndex];
+                apiStatus.textContent = `当前使用接口: ${api.name} (${api.id})`;
+                
+                const xhr = new XMLHttpRequest();
+                
+                // 上传进度事件
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressBar.style.width = percentComplete + '%';
+                    }
+                });
+                
+                xhr.addEventListener('load', () => {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if (data.errno === 0 || data.data && data.data.url) {
+                            showResult(`
+                                <p>上传成功！</p>
+                                <p>图片链接: <a href="${data.data.url}" target="_blank">${data.data.url}</a></p>
+                                <p>图片文件名: ${data.data.imgFile}</p>
+                                <button onclick="copyToClipboard('${data.data.url}')" style="margin-top:10px;padding:6px 12px;font-size:14px;">复制链接</button>
+                            `, 'success');
+                            
+                            // 添加到历史记录
+                            addToHistory(data.data.url);
+                            resolve();
+                        } else {
+                            showResult(`上传失败: ${data.error || '未知错误'}`, 'error');
+                            reject(new Error(data.error || 'API返回错误'));
+                        }
+                    } catch (error) {
+                        showResult('解析响应数据失败', 'error');
+                        reject(error);
+                    } finally {
+                        uploadButton.disabled = false;
+                        progressContainer.style.display = 'none';
+                    }
+                });
+                
+                xhr.addEventListener('error', () => {
+                    showResult('网络错误，请重试', 'error');
+                    reject(new Error('网络错误'));
+                });
+                
+                xhr.addEventListener('timeout', () => {
+                    showResult('请求超时，请重试', 'error');
+                    reject(new Error('请求超时'));
+                });
+                
+                xhr.open('POST', api.url);
+                xhr.timeout = 30000; // 30秒超时
+                xhr.send(formData);
+            });
+        }
+
+        // 显示结果函数
+        function showResult(message, type = '') {
+            resultDiv.innerHTML = message;
+            resultDiv.className = 'result';
+            if (type) {
+                resultDiv.classList.add(`result-${type}`);
+            }
+        }
+
+        // 复制到剪贴板函数
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('链接已复制到剪贴板！');
+            }).catch(err => {
+                console.error('无法复制文本: ', err);
+                
+                // 降级方案
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('链接已复制到剪贴板！');
+                } catch (err) {
+                    alert('复制失败，请手动复制链接');
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        // 计算并显示网站运行时间
+        function updateRuntime() {
+            // 设置网站开始时间 - 这里使用当前时间作为示例
+            const startTime = new Date(2025, 6, 28);
+            startTime.setHours(0, 0, 0, 0); // 设置为当天零点
+            
+            const currentTime = new Date();
+            const diffTime = currentTime - startTime;
+            
+            // 计算天、小时、分钟、秒
+            const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diffTime % (1000 * 60)) / 1000);
+            
+            // 更新显示
+            document.getElementById('runtimeDays').textContent = days;
+            document.getElementById('runtimeHours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('runtimeMinutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('runtimeSeconds').textContent = seconds.toString().padStart(2, '0');
+        }
+        
+        // 初始更新运行时间
+        updateRuntime();
+        
+        // 每秒更新一次运行时间
+        setInterval(updateRuntime, 1000);
+    </script>
+</body>
+</html>
+
+<!-- 网页鼠标点击特效 - 核心价值观关键字 -->
+<script>
+    (function () {
+        var a_idx = 0;
+        window.onclick = function (event) {
+            var a = new Array("🏀真的是你啊", "🏀喜欢唱", "🏀跳", "🏀Rap", "🏀篮球", "🏀amaji", "🏀练习时长两年半", "🏀坤坤", "🏀有没有树枝",
+                "🏀你干嘛～", "🏀哎哟～", "🏀鸡你太美");
+            var heart = document.createElement("b"); //创建b元素
+            heart.onselectstart = new Function('event.returnValue=false'); //防止拖动
+
+            document.body.appendChild(heart).innerHTML = a[a_idx]; //将b元素添加到页面上
+            a_idx = (a_idx + 1) % a.length;
+            heart.style.cssText = "position: fixed;left:-100%;"; //给p元素设置样式
+
+            var f = 13, // 字体大小
+                x = event.clientX - f / 2 - 30, // 横坐标
+                y = event.clientY - f, // 纵坐标
+                c = randomColor(), // 随机颜色
+                a = 1, // 透明度
+                s = 0.8; // 放大缩小
+
+            var timer = setInterval(function () { //添加定时器
+                if (a <= 0) {
+                    document.body.removeChild(heart);
+                    clearInterval(timer);
+                } else {
+                    heart.style.cssText = "font-size:16px;cursor: default;position: fixed;color:" +
+                        c + ";left:" + x + "px;top:" + y + "px;opacity:" + a + ";transform:scale(" +
+                        s + ");";
+
+                    y--;
+                    a -= 0.016;
+                    s += 0.002;
+                }
+            }, 15)
+        }
+        // 随机颜色
+        function randomColor() {
+            return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math
+                .random() * 255)) + ")";
+        }
+    }());
+</script>
